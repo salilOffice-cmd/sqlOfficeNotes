@@ -1,0 +1,284 @@
+/*
+Title:			spSD_Employee_DataFilter_Using_TempTable
+Creator:		Ashish Gaikwad
+
+Purpose: 		
+Functionality:	Employee Data 
+Created:		
+Applications:	
+
+Comments:		
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Example:		exec spSD_Employee_DataFilter_Using_TempTable @EMPLOYEE_ID = 109
+         		exec spSD_Employee_DataFilter_Using_TempTable @FIRST_NAME  = ' Neena     '    
+         		exec spSD_Employee_DataFilter_Using_TempTable @LAST_NAME   = 'Ernst     '
+                        exec spSD_Employee_DataFilter_Using_TempTable @jobid       = 'SA_REP     '
+		        
+
+
+
+
+Output:		
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Return Values:	
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Modifications:
+
+Date          Developer        Description
+----------  --------------	--------------------------------------------------------------------------------------------------------------------
+
+*/
+
+ALTER PROCEDURE  spSD_Employee_DataFilter_Using_TempTable      @EMPLOYEE_ID int         = null,
+                                                               @FIRST_NAME  varchar(50) = null,
+		                                                       @LAST_NAME   varchar(50) = null,
+		                                                       @jobid       varchar(60) = null
+    
+as
+begin
+
+Set nocount on 
+
+
+/* Getting all EmployeeData table data into temp table */
+
+select * 
+into   #tmpEmployeeData
+from   EmployeeData
+
+
+
+/* EMPLOYEE_ID filters */
+if @EMPLOYEE_ID is not null
+   begin
+     delete from #tmpEmployeeData where EMPLOYEE_ID	 !=  @EMPLOYEE_ID
+   end
+
+/* FIRST_NAME filters */
+if @FIRST_NAME is not null
+   begin
+     delete from #tmpEmployeeData where FIRST_NAME not like concat('%',@FIRST_NAME,'%')
+   end
+
+/* LAST_NAME filters */
+if @LAST_NAME is not null
+   begin
+     delete from #tmpEmployeeData where LAST_NAME not like concat('%',@LAST_NAME,'%')
+   end
+
+/* jobid filters */
+if @jobid is not null
+   begin
+     delete from #tmpEmployeeData where JOB_ID not like concat('%',@jobid,'%')
+   end
+
+
+
+/*** Return Result ***/
+select *
+from   #tmpEmployeeData
+
+
+end
+
+
+
+
+/*************************************************************************************************************************/
+
+/*
+Title:			spSD_Employee_sel
+Creator:		Ashish Gaikwad
+
+Purpose: 		
+Functionality:	Employee Data 
+Created:		
+Applications:	
+
+Comments:		
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Example:		exec spSD_Employee_sel @EMPLOYEE_ID = 109
+         		exec spSD_Employee_sel @FIRST_NAME  = ' Neena     '    
+         		exec spSD_Employee_sel @LAST_NAME   = 'Ernst     '
+                        exec spSD_Employee_sel @jobid       = 'SA_REP     '
+		        
+
+
+
+
+Output:		
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Return Values:	
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Modifications:
+
+Date          Developer        Description
+----------  --------------	--------------------------------------------------------------------------------------------------------------------
+
+*/
+
+ALTER PROCEDURE spSD_Employee_sel    @EMPLOYEE_ID int         = null,
+                                     @FIRST_NAME  varchar(50) = null,
+		                             @LAST_NAME   varchar(50) = null,
+		                             @jobid       varchar(60) = null
+    
+as
+begin
+
+Set nocount on 
+
+/** Return Result  **/
+
+select * 
+from   EmployeeData
+where  EMPLOYEE_ID in ( select EMPLOYEE_ID = @EMPLOYEE_ID
+
+                        union 
+
+						select EMPLOYEE_ID 
+						from   EmployeeData
+						where  FIRST_NAME = @FIRST_NAME
+
+						union
+
+						select EMPLOYEE_ID
+						from   EmployeeData
+						where  LAST_NAME = @LAST_NAME
+
+						union
+
+						select EMPLOYEE_ID
+						from   EmployeeData
+						where  JOB_ID = @jobid )
+
+
+end
+
+
+
+
+/*****************************************************************************************/
+
+/*
+Title:			[spSD_EmployeeUsingTempTable_sel]
+Creator:		Ashish Gaikwad
+
+Purpose: 		
+Functionality:	Employee Data 
+Created:		
+Applications:	
+
+Comments:		
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Example:		exec spSD_EmployeeUsingTempTable_sel @EMPLOYEE_ID = 109
+         		exec spSD_EmployeeUsingTempTable_sel @FIRST_NAME  = ' Neena '    
+         		exec spSD_EmployeeUsingTempTable_sel @LAST_NAME   = 'Ernst'
+                        exec spSD_EmployeeUsingTempTable_sel @jobid       = 'IT_PROG'
+		        
+
+
+
+
+Output:		
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Return Values:	
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Modifications:
+
+Date          Developer        Description
+----------  --------------	--------------------------------------------------------------------------------------------------------------------
+
+*/
+
+CREATE PROCEDURE [dbo].[spSD_EmployeeUsingTempTable_sel]    @EMPLOYEE_ID int         = null,
+                                                           @FIRST_NAME  varchar(50) = null,
+		                                                   @LAST_NAME   varchar(50) = null,
+		                                                   @jobid       varchar(60) = null
+    
+as
+begin
+
+Set nocount on 
+
+
+
+/* creating temp table to fill the data as per requirment */
+
+create table #tmpChaseList (    EMPLOYEE_ID        int
+                               ,FIRST_NAME         varchar(50)
+                               ,LAST_NAME          varchar(50)
+                               ,EMAIL              varchar(50)
+                               ,PHONE_NUMBER       varchar(50)
+                               ,HIRE_DATE          date
+                               ,JOB_ID             varchar(50)
+                               ,SALARY             decimal(18,9)
+                               ,COMMISSION_PCT     decimal(18,9)
+                               ,MANAGER_ID         int
+                               ,DEPARTMENT_ID      int     )
+
+
+
+/* Applying filters */
+if @EMPLOYEE_ID is not null
+   begin
+     insert into #tmpChaseList
+	 select *
+	 from   EmployeeData
+	 where  EMPLOYEE_ID = @EMPLOYEE_ID
+   end
+
+-------------------------------------------------
+
+if @FIRST_NAME is not null
+   begin
+     insert into #tmpChaseList
+	 select *
+	 from   EmployeeData
+	 where  FIRST_NAME = @FIRST_NAME
+   end
+
+-------------------------------------------------
+
+if @LAST_NAME is not null
+   begin
+     insert into #tmpChaseList
+	 select *
+	 from   EmployeeData
+	 where  LAST_NAME = @LAST_NAME
+   end
+
+-----------------------------------------------  
+
+/*  Return Result */
+select * 
+from   #tmpChaseList
+order by FIRST_NAME desc
+
+end
+
+QN96B-D3FWQ-3FB9D-D7KRX-QV9R9
+
+
+
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+								

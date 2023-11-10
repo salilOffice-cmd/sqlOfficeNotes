@@ -1,0 +1,7 @@
+
+
+Begin Tran 
+---- delete,insert,updae statement
+
+-- commit
+-- rollback
