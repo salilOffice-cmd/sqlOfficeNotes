@@ -31,6 +31,7 @@ FROM oldtable
 WHERE 1 = 0;
 
 */
+use tempdb
 
 
 CREATE TABLE employees (
@@ -49,15 +50,48 @@ VALUES
     (4, 'Alice', 'Brown', 'Finance', 70000.00);
 
 
+select *
+from employees
+
 /*
 You want to create a new table called "high_earners" to store information 
 about employees with a salary greater than $70,000. */
 
 
-SELECT employee_id, first_name, last_name, salary
+SELECT *
 INTO high_earners
 FROM employees
 WHERE salary > 70000.00;
+
+
+--INSERT INTO new_hires (employee_id, first_name, last_name, department, salary)
+--SELECT employee_id, first_name, last_name, department, salary
+--FROM employeess
+--WHERE department = 'Sales';
+
+
+Select *
+From high_earners
+
+
+CREATE TABLE New_Table (
+    employee_id INT,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    department VARCHAR(50),
+    salary DECIMAL(10, 2)
+);
+
+
+
+Insert into New_Table (employee_id,first_name, last_name, department, salary)
+select employee_id, first_name, last_name, department, salary
+from employees
+where salary > 50000.00;
+
+
+Select *
+from New_Table
 
 
 
